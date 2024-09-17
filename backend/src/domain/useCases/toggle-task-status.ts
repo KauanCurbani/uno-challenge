@@ -10,8 +10,8 @@ export class ToggleTaskStatus {
 
   async call(taskId: string): Promise<Task> {
     const task = await this.getTaskByIdRepository.call(taskId);
-    task.completed = !task.completed;
-    await this.updateTaskRepository.call(task);
-    return task;
+    const newTask = { ...task, completed: !task.completed };
+    await this.updateTaskRepository.call(newTask);
+    return newTask;
   }
 }

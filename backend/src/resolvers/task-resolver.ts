@@ -21,7 +21,9 @@ import { Arg, FieldResolver, Mutation, Query, Resolver, Root } from "type-graphq
 @Resolver(() => Task)
 export class TaskResolver {
   @Query(() => [Task])
-  async listTasks(@Arg("filter") filter: string): Promise<Task[]> {
+  async listTasks(
+    @Arg("filter", { nullable: true, defaultValue: "" }) filter: string
+  ): Promise<Task[]> {
     const response = await new GetAllTasks(new FakeGetAllTasksRepository(TASKS_SOURCE)).call(
       filter
     );
@@ -30,7 +32,9 @@ export class TaskResolver {
 
   @FieldResolver(() => [History])
   async history(@Root() task: Task): Promise<History[]> {
-    return HISTORY_SOURCE.filter((history) => history.taskId === task.id);
+    return HISTORY_SOURCE.filter((history) => history.taskId === task.id).sort((a, b) => {
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    });
   }
 
   @Mutation(() => Task)

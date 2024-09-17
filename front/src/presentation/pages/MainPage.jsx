@@ -1,12 +1,12 @@
 import { useMutation, useQuery } from "@apollo/client";
-import { getOperationName } from "@apollo/client/utilities";
 import { CheckCircle, Circle, EditIcon, PlusIcon, Trash2 } from "lucide-react";
 import React from "react";
 import {
-  ADD_ITEM_MUTATION,
-  DELETE_ITEM_MUTATION,
-  GET_TODO_LIST,
-  UPDATE_ITEM_MUTATION,
+  COMPLETE_TASK,
+  CREATE_TASK,
+  DELETE_TASK,
+  LIST_TASKS,
+  UPDATE_TASK,
 } from "../../infra/graphql";
 import { ModalsType } from "../../providers/modalsProvider";
 import { cn } from "../../utils/cn";
@@ -17,19 +17,19 @@ import TaskDetail from "../components/taskDetail";
 import { useModals } from "../hooks/useModals";
 
 function MainPage() {
-  const { data, refetch } = useQuery(GET_TODO_LIST);
   const [selectedItemId, setSelectedItemId] = React.useState(null);
-  const [addItem] = useMutation(ADD_ITEM_MUTATION);
-  const [updateItem] = useMutation(UPDATE_ITEM_MUTATION);
-  const [deleteItem] = useMutation(DELETE_ITEM_MUTATION);
+  const { data, refetch } = useQuery(LIST_TASKS);
+  const [addItem] = useMutation(CREATE_TASK);
+  const [updateItem] = useMutation(UPDATE_TASK);
+  const [toggleCompleteItem] = useMutation(COMPLETE_TASK);
+  const [deleteItem] = useMutation(DELETE_TASK);
   const { openModal } = useModals();
-  const selectedItem = data?.todoList.find((item) => item.id === selectedItemId);
-  const itemsLength = data?.todoList.length;
-  document.title = `UNO | (${itemsLength}) Todo List`;
+  const selectedItem = data?.listTasks.find((item) => item.id === selectedItemId);
+  const itemsLength = data?.listTasks.length;
+  document.title = `(${itemsLength}) | UNO - Todo List`;
 
-
-  const completedItems = data?.todoList.filter((item) => item.completed);
-  const percent = (completedItems?.length / data?.todoList.length) * 100 || 0;
+  const completedItems = data?.listTasks.filter((item) => item.completed);
+  const percent = (completedItems?.length / data?.listTasks.length) * 100 || 0;
 
   function onSelectItem(item) {
     if (selectedItemId === item.id) setSelectedItemId(null);
@@ -37,7 +37,7 @@ function MainPage() {
   }
 
   async function getTodosWithFilter(filter) {
-    refetch({ filter: { name: filter } });
+    refetch({ filter });
   }
 
   async function onAddItem() {
@@ -47,25 +47,20 @@ function MainPage() {
   async function onDeleteItem(item) {
     await deleteItem({
       variables: {
-        id: item.id,
+        taskId: item.id,
       },
       awaitRefetchQueries: true,
-      refetchQueries: [getOperationName(GET_TODO_LIST)],
+      refetchQueries: [LIST_TASKS],
     });
   }
 
   async function completeItem(item) {
-    await updateItem({
+    await toggleCompleteItem({
       variables: {
-        values: {
-          id: item.id,
-          name: item.name,
-          description: item.description,
-          completed: !item.completed,
-        },
+        taskId: item.id,
       },
       awaitRefetchQueries: true,
-      refetchQueries: [getOperationName(GET_TODO_LIST)],
+      refetchQueries: [LIST_TASKS],
     });
   }
 
@@ -107,7 +102,7 @@ function MainPage() {
             </div>
             <Progress value={percent} />
           </div>
-          {data?.todoList.map((item) => (
+          {data?.listTasks.map((item) => (
             <div
               key={item.id}
               className={cn(
@@ -118,7 +113,7 @@ function MainPage() {
               onClick={() => onSelectItem(item)}
             >
               <div className="flex flex-col">
-                <span className="font-medium">{item.name}</span>
+                <span className="font-medium">{item.title}</span>
               </div>
 
               <div

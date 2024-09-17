@@ -1,12 +1,5 @@
 import MDEditor from "@uiw/react-md-editor";
-import {
-    CheckCircle2Icon,
-    CircleIcon,
-    EditIcon,
-    PlusIcon,
-    XCircle,
-    XIcon
-} from "lucide-react";
+import { CheckCircle2Icon, CircleIcon, EditIcon, PlusIcon, XCircle, XIcon } from "lucide-react";
 import { cn } from "../../utils/cn";
 import { Button } from "./button";
 
@@ -14,7 +7,7 @@ function TaskDetail({ close, task }) {
   return (
     <>
       <div className="flex justify-between items-center">
-        <span className="text-xl font-bold"> {task.name} </span>
+        <span className="text-xl font-bold"> {task.title} </span>
         <Button size="icon" variant="ghost" onClick={close}>
           <XIcon className="h-5 w-5" />
         </Button>
@@ -68,8 +61,8 @@ function TaskDetail({ close, task }) {
           }
 
           return (
-            <>
-              <div key={history.id} className="flex items-center gap-2">
+            <div key={history.id}>
+              <div className="flex items-center gap-2">
                 <div
                   className={cn(
                     "aspect-square w-8 flex items-center justify-center rounded-full ",
@@ -87,7 +80,7 @@ function TaskDetail({ close, task }) {
                 </span>
               </div>
               {idx !== task.history.length - 1 && <div className="w-0.5 h-6 bg-muted ml-3.5" />}
-            </>
+            </div>
           );
         })}
       </div>

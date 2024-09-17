@@ -28,7 +28,7 @@ type Mutation {
 }
 
 type Query {
-  listTasks(filter: String!): [Task!]!
+  listTasks(filter: String = ""): [Task!]!
 }
 
 type Task {

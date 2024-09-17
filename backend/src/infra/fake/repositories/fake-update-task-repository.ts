@@ -1,6 +1,7 @@
 import { Task } from "@/domain/entities/task";
 import { UpdateTaskRepository } from "@/domain/repositories/update-task-repository";
 import { UpdateTaskInput } from "@/domain/useCases/update-task";
+import { randomUUID } from "node:crypto";
 
 export class FakeUpdateTaskRepository implements UpdateTaskRepository {
   constructor(private TASKS_SOURCE: Task[], private HISTORY_SOURCE: any[]) {}
@@ -13,18 +14,30 @@ export class FakeUpdateTaskRepository implements UpdateTaskRepository {
     if (currentIndex === -1) {
       throw new Error("Task not found");
     }
+    const oldTask = this.TASKS_SOURCE[currentIndex];
+    const newTask = { ...oldTask, ...data };
+    this.TASKS_SOURCE[currentIndex] = newTask;
 
-    this.TASKS_SOURCE[currentIndex] = {
-      ...this.TASKS_SOURCE[currentIndex],
-      title: data.title,
-      description: data.description,
-    };
-    this.HISTORY_SOURCE.push({
-      id: data.id,
-      type: "UPDATED",
-      date: new Date(),
-    });
+    if (this.isCompleteChange(oldTask, newTask)) {
+      this.HISTORY_SOURCE.push({
+        id: randomUUID(),
+        taskId: newTask.id,
+        type: newTask.completed ? "COMPLETED" : "UNCOMPLETED",
+        date: new Date().toISOString(),
+      });
+    } else {
+      this.HISTORY_SOURCE.push({
+        id: randomUUID(),
+        taskId: newTask.id,
+        type: "UPDATED",
+        date: new Date().toISOString(),
+      });
+    }
 
-    return this.TASKS_SOURCE[currentIndex];
+    return newTask;
+  }
+
+  private isCompleteChange(oldTask: Task, newTask: Task): boolean {
+    return oldTask.completed !== newTask.completed;
   }
 }

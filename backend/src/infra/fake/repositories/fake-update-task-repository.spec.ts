@@ -2,6 +2,8 @@ import { History } from "@/domain/entities";
 import { Task } from "@/domain/entities/task";
 import { FakeUpdateTaskRepository } from "./fake-update-task-repository";
 
+
+
 describe("FakeUpdateTaskRepository", () => {
   let fakeUpdateTaskRepository: FakeUpdateTaskRepository;
   let tasks: Task[];
@@ -90,6 +92,93 @@ describe("FakeUpdateTaskRepository", () => {
       id: "1",
       title: "any_title",
       description: "new_description",
+      completed: false,
+    });
+  });
+
+  it("should add a history when the task is completed", async () => {
+    tasks = [{ id: "1", title: "any_title", description: "any_description", completed: false }];
+    fakeUpdateTaskRepository = new FakeUpdateTaskRepository(tasks, history);
+
+    await fakeUpdateTaskRepository.call({
+      id: "1",
+      title: "any_title",
+      description: "any_description",
+      completed: true,
+    });
+
+    expect(history.length).toBe(1);
+    expect(history[0].type).toBe("COMPLETED");
+  });
+
+  it("should update a task to completed", async () => {
+    tasks = [{ id: "1", title: "any_title", description: "any_description", completed: false }];
+    fakeUpdateTaskRepository = new FakeUpdateTaskRepository(tasks, history);
+
+    const result = await fakeUpdateTaskRepository.call({
+      id: "1",
+      title: "any_title",
+      description: "any_description",
+      completed: true,
+    });
+
+    expect(result).toEqual({
+      id: "1",
+      title: "any_title",
+      description: "any_description",
+      completed: true,
+    });
+  });
+
+  it("should update a task to uncompleted", async () => {
+    tasks = [{ id: "1", title: "any_title", description: "any_description", completed: true }];
+    fakeUpdateTaskRepository = new FakeUpdateTaskRepository(tasks, history);
+
+    const result = await fakeUpdateTaskRepository.call({
+      id: "1",
+      title: "any_title",
+      description: "any_description",
+      completed: false,
+    });
+
+    expect(result).toEqual({
+      id: "1",
+      title: "any_title",
+      description: "any_description",
+      completed: false,
+    });
+  });
+
+  it("should add a history when the task is uncompleted", async () => {
+    tasks = [{ id: "1", title: "any_title", description: "any_description", completed: true }];
+    fakeUpdateTaskRepository = new FakeUpdateTaskRepository(tasks, history);
+
+    await fakeUpdateTaskRepository.call({
+      id: "1",
+      title: "any_title",
+      description: "any_description",
+      completed: false,
+    });
+
+    expect(history.length).toBe(1);
+    expect(history[0].type).toBe("UNCOMPLETED");
+  });
+
+  it("should update a task with a new title", async () => {
+    tasks = [{ id: "1", title: "any_title", description: "any_description", completed: false }];
+    fakeUpdateTaskRepository = new FakeUpdateTaskRepository(tasks, history);
+
+    const result = await fakeUpdateTaskRepository.call({
+      id: "1",
+      title: "test",
+      description: "any_description",
+      completed: false,
+    });
+
+    expect(result).toEqual({
+      id: "1",
+      title: "test",
+      description: "any_description",
       completed: false,
     });
   });

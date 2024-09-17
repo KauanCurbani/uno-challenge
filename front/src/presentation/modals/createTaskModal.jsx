@@ -1,7 +1,7 @@
 import { getOperationName } from "@apollo/client/utilities";
 import MDEditor from "@uiw/react-md-editor";
 import { useState } from "react";
-import { GET_TODO_LIST } from "../../infra/graphql";
+import { LIST_TASKS } from "../../infra/graphql";
 import { ModalsType } from "../../providers/modalsProvider";
 import { Button } from "../components/button";
 import { Dialog, DialogContent, DialogFooter, DialogTitle } from "../components/dialog";
@@ -12,19 +12,19 @@ function CreateTaskModal() {
   const { open, type, data, closeModal } = useModals();
   const isOpen = open && type === ModalsType.CREATE_TASK;
 
-  const [name, setName] = useState("");
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
   async function onConfirm() {
     data.addItem({
       variables: {
-        values: {
-          name,
+        data: {
+          title,
           description,
         },
       },
       awaitRefetchQueries: true,
-      refetchQueries: [getOperationName(GET_TODO_LIST)],
+      refetchQueries: [getOperationName(LIST_TASKS)],
     });
     closeModal();
   }
@@ -36,8 +36,8 @@ function CreateTaskModal() {
         <div className="space-y-4 list-disc">
           <Input
             placeholder="Nome da tarefa"
-            onChange={(e) => setName(e.target.value)}
-            value={name}
+            onChange={(e) => setTitle(e.target.value)}
+            value={title}
           />
 
           <MDEditor
@@ -51,7 +51,7 @@ function CreateTaskModal() {
           <Button
             variant={"ghost"}
             onClick={() => {
-              setName("");
+              setTitle("");
               setDescription("");
               closeModal();
             }}

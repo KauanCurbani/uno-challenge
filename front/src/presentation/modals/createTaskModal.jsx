@@ -7,6 +7,7 @@ import { Button } from "../components/button";
 import { Dialog, DialogContent, DialogFooter, DialogTitle } from "../components/dialog";
 import { Input } from "../components/input";
 import { useModals } from "../hooks/useModals";
+import { toast } from "react-toastify";
 
 function CreateTaskModal() {
   const { open, type, data, closeModal } = useModals();
@@ -16,17 +17,21 @@ function CreateTaskModal() {
   const [description, setDescription] = useState("");
 
   async function onConfirm() {
-    data.addItem({
-      variables: {
-        data: {
-          title,
-          description,
+    try {
+      await data.addItem({
+        variables: {
+          data: {
+            title,
+            description,
+          },
         },
-      },
-      awaitRefetchQueries: true,
-      refetchQueries: [getOperationName(LIST_TASKS)],
-    });
-    closeModal();
+        awaitRefetchQueries: true,
+        refetchQueries: [getOperationName(LIST_TASKS)],
+      });
+      closeModal();
+    } catch (error) {
+      toast.error(error.message);
+    }
   }
 
   return (

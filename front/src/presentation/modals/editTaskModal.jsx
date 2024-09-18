@@ -7,6 +7,7 @@ import { Button } from "../components/button";
 import { Dialog, DialogContent, DialogFooter, DialogTitle } from "../components/dialog";
 import { Input } from "../components/input";
 import { useModals } from "../hooks/useModals";
+import { toast } from "react-toastify";
 
 function EditTaskModal() {
   const { open, type, data, closeModal } = useModals();
@@ -23,19 +24,23 @@ function EditTaskModal() {
   }, [isOpen, data]);
 
   async function onConfirm() {
-    data.updateItem({
-      variables: {
-        data: {
-          id: data.item.id,
-          completed: data.item.completed,
-          title,
-          description,
+    try {
+      await data.updateItem({
+        variables: {
+          data: {
+            id: data.item.id,
+            completed: data.item.completed,
+            title,
+            description,
+          },
         },
-      },
-      awaitRefetchQueries: true,
-      refetchQueries: [getOperationName(LIST_TASKS)],
-    });
-    closeModal();
+        awaitRefetchQueries: true,
+        refetchQueries: [getOperationName(LIST_TASKS)],
+      });
+      closeModal();
+    } catch (error) {
+      toast.error(error.message);
+    }
   }
 
   return (

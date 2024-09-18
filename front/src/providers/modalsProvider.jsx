@@ -1,12 +1,14 @@
 import { createContext, useState } from "react";
 import CreateTaskModal from "../presentation/modals/createTaskModal";
 import EditTaskModal from "../presentation/modals/editTaskModal";
+import TaskDetailModal from "../presentation/modals/taskDetailModal";
 
 const ModalsContext = createContext({});
 
 const ModalsType = {
   CREATE_TASK: "create-task",
   EDIT_TASK: "edit-task",
+  TASK_DETAIL: "task-detail",
 };
 
 const ModalsProvider = ({ children }) => {
@@ -38,6 +40,7 @@ const ModalsProvider = ({ children }) => {
     >
       <CreateTaskModal />
       <EditTaskModal />
+      <TaskDetailModal />
       {children}
     </ModalsContext.Provider>
   );
